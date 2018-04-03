@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -34,8 +35,8 @@ public class Course {
 	@Column(nullable = false)
 	private String name;
 
-	@OneToMany(mappedBy="course")
-	private HashSet<Review> reviews = new HashSet<>();
+	@OneToMany(mappedBy="course", cascade = CascadeType.ALL)
+	private Set<Review> reviews = new HashSet<>();
 	
 	@UpdateTimestamp
 	private LocalDateTime lastUpdatedDate;
@@ -59,7 +60,7 @@ public class Course {
 	}
 
 	
-	public HashSet<Review> getReviews() {
+	public Set<Review> getReviews() {
 		return reviews;
 	}
 
@@ -78,5 +79,9 @@ public class Course {
 	@Override
 	public String toString() {
 		return String.format("Course[%s]", name);
+	}
+
+	public void setReviews(Set<Review> rs) {
+		this.reviews = rs;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -26,7 +27,20 @@ public class CourseRepository {
 	EntityManager em;
 
 	public Course findById(Long id) {
-		return em.find(Course.class, id);
+		Course c = em.find(Course.class, id);
+		Set<Review> rs = c.getReviews();
+		System.out.println(">> " + em.contains(c));
+		rs.stream().forEach(r->{
+			System.out.println(">> " + em.contains(r));
+		});
+		
+		em.detach(c);
+		System.out.println(">> " + em.contains(c));
+		rs.stream().forEach(r->{
+			System.out.println(">> " + em.contains(r));
+		});
+		c.setReviews(rs);
+		return c;
 	}
 
 	public Course save(Course course) {
@@ -77,7 +91,7 @@ public class CourseRepository {
 	}
 	
 	public void addReviewsForCourse(Long courseId, List<Review> reviews) {		
-		Course course = findById(courseId);
+		Course course = em.find(Course.class, courseId);
 		logger.info("course.getReviews() -> {}", course.getReviews());
 		for(Review review:reviews)
 		{			
@@ -90,10 +104,10 @@ public class CourseRepository {
 
 	public void setCourseWithReviews(final Course course) {		
 		
-		Course persistedCourse = findById(course.getId());
-		HashSet<Review> persistedReviews = persistedCourse.getReviews();
+		Course persistedCourse = em.find(Course.class, course.getId());
+		Set<Review> persistedReviews = persistedCourse.getReviews();
 
-		HashSet<Review> newReviews = (HashSet<Review>) course.getReviews().clone();
+		Set<Review> newReviews = course.getReviews().stream().collect(Collectors.toSet());
 		newReviews.removeAll(persistedReviews);
 
 		for(Review newReview:newReviews)
@@ -104,9 +118,9 @@ public class CourseRepository {
 			em.persist(newReview);
 		}
 
-		HashSet<Review> deleteReviews = (HashSet<Review>) persistedReviews.clone();
+		Set<Review> deleteReviews = persistedReviews.stream().collect(Collectors.toSet());
 		deleteReviews.removeAll(course.getReviews());
-		
+
 		for(Review deleteReview:deleteReviews)
 		{			
 			//setting the relationship
@@ -115,14 +129,16 @@ public class CourseRepository {
 		}
 
 		HashMap<Long, Review> reviewMap = convert(course.getReviews());
-		persistedReviews.stream().filter(pr-> reviewMap.containsKey(pr.getId())).forEach(pr->{
-			Review r= reviewMap.get(pr.getId());
-			pr.setDescription(r.getDescription());
-			pr.setRating(r.getRating());
+		persistedReviews.stream().forEach(pr->{
+			Review r = reviewMap.get(pr.getId());
+			if(r.equals(pr)) {
+				pr.setDescription(r.getDescription());
+				pr.setRating(r.getRating());
+			}
 		});
 	}
 
-	HashMap<Long, Review> convert(HashSet<Review> reviewSet) {
+	HashMap<Long, Review> convert(Set<Review> reviewSet) {
 		HashMap<Long, Review> reviewMap = new HashMap<Long, Review>();
 
 		for (Review review : reviewSet) {

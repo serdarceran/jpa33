@@ -61,12 +61,8 @@ public class Review {
 	}
 
 	@Override
-	public int hashCode() {
-		return this.id.intValue();
-	}
-
-	@Override
 	public boolean equals(Object obj) {
+		if(this.id == null) return false;
 		return this.id.equals(((Review)obj).getId());
 	}
 
