@@ -16,6 +16,7 @@ import com.in28minutes.jpa.hibernate.demo.entity.Course;
 import com.in28minutes.jpa.hibernate.demo.entity.Review;
 import com.in28minutes.jpa.hibernate.demo.repository.CourseRepository;
 import com.in28minutes.jpa.hibernate.demo.repository.StudentRepository;
+import com.in28minutes.jpa.hibernate.demo.repository.UserRepository;
 
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner{
@@ -29,7 +30,7 @@ public class DemoApplication implements CommandLineRunner{
 	private StudentRepository studentRepository;
 
 	@Autowired
-	EntityManager entityManager;
+	private UserRepository userRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
@@ -40,7 +41,7 @@ public class DemoApplication implements CommandLineRunner{
 		//studentRepository.saveStudentWithPassport();
 		//repository.playWithEntityManager();
 		//courseRepository.addHardcodedReviewsForCourse();
-		List<Review> reviews = new ArrayList<>();
+		/* List<Review> reviews = new ArrayList<>();
 		
 		reviews.add(new Review("5", "Great Hands-on Stuff."));	
 		reviews.add(new Review("5", "Hatsoff."));
@@ -51,7 +52,11 @@ public class DemoApplication implements CommandLineRunner{
 		
 		c.getReviews().add(new Review("4", "Serdar"));
 
-		courseRepository.setCourseWithReviews(c);
+		courseRepository.setCourseWithReviews(c); */
+
+		List<Course> courses = userRepository.customFind("test");
+
+		System.out.println(">> " + courses.size());
 
 	}	
 }
